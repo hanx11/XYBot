@@ -2,10 +2,10 @@ import asyncio
 import concurrent.futures
 import json
 import os
-import time
-
 import pywxdll
+import requests
 import schedule
+import time
 import websockets
 import yaml
 from loguru import logger
@@ -29,6 +29,10 @@ async def plan_run_pending():  # 计划等待判定线程
     while True:
         schedule.run_pending()
         await asyncio.sleep(1)
+
+
+async def get_random_sentence():
+    return requests.get("https://v1.hitokoto.cn/").json()
 
 
 async def main():
@@ -86,6 +90,8 @@ async def main():
                     if r_type == 1 or r_type == 3 or r_type == 49:
                         logger.info('[收到消息]:{message}'.format(message=recv))
                         if isinstance(recv['content'], str):  # 判断是否为txt消息
+                            s = await get_random_sentence()
+                            bot.send_txt_msg(recv['wxid'], s['hitokoto'])
                             asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
                 except Exception as error:
                     logger.error('出现错误: {error}'.format(error=error))
