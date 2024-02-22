@@ -34,6 +34,9 @@ async def plan_run_pending():  # 计划等待判定线程
 async def get_random_sentence():
     return requests.get("https://v1.hitokoto.cn/").json()
 
+async def gen_chp():
+    return requests.get("https://api.shadiao.pro/chp").json()
+
 
 async def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -90,8 +93,10 @@ async def main():
                     if r_type == 1 or r_type == 3 or r_type == 49:
                         logger.info('[收到消息]:{message}'.format(message=recv))
                         if isinstance(recv['content'], str):  # 判断是否为txt消息
-                            s = await get_random_sentence()
-                            bot.send_txt_msg(recv['wxid'], s['hitokoto'])
+                            # s = await get_random_sentence()
+                            # bot.send_txt_msg(recv['wxid'], s['hitokoto'])
+                            s = await gen_chp()
+                            bot.send_txt_msg(recv['wxid'], s['text'])
                             asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
                 except Exception as error:
                     logger.error('出现错误: {error}'.format(error=error))
