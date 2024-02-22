@@ -96,7 +96,7 @@ async def main():
                             # s = await get_random_sentence()
                             # bot.send_txt_msg(recv['wxid'], s['hitokoto'])
                             s = await gen_chp()
-                            bot.send_txt_msg(recv['wxid'], s['text'])
+                            bot.send_txt_msg(recv['wxid'], s['data']['text'])
                             asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
                 except Exception as error:
                     logger.error('出现错误: {error}'.format(error=error))
