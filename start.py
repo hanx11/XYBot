@@ -15,6 +15,8 @@ import xybot
 from plans_manager import plan_manager
 from plugin_manager import plugin_manager
 
+session = requests.session()
+
 
 async def message_handler(recv, handlebot):  # 处理收到的消息
     await asyncio.create_task(handlebot.message_handler(recv))
@@ -62,12 +64,13 @@ async def create_chat_gpt_dialog(message):
             if r_json.get("message") == "success":
                 pk = r_json['result']['pk']
                 url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/?pk={pk}"
-                await asyncio.sleep(0.5)
-                response = await with_requests(url, headers)
-                client = sseclient.SSEClient(response)
-                resp_msg = b""
-                for event in client.events():
-                    logger.info(f"event: {event}")
+                request = requests.Request(url, headers=headers).prepare()
+                r = session.send(request, timeout=3).json()
+                while r.get("message") == "success" and r['result']['status'] != 0:
+                    content = r['result']['content']
+                    logger.info(f"resp_content: {content}")
+                    await asyncio.sleep(0.3)
+                    r = session.send(request, timeout=2).json()
                 return message
 
         return "服务器开小差了，请稍后再试^_^"
