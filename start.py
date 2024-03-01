@@ -58,6 +58,7 @@ async def create_chat_gpt_dialog(message):
         resp = requests.post(url, json=data, headers=headers)
         if resp.status_code == 200:
             r_json = resp.json()
+            logger.info(f"r_json: {r_json}")
             if r_json.get("message") == "success":
                 url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
                 params = {"pk": r_json['result']['pk']}
@@ -65,13 +66,12 @@ async def create_chat_gpt_dialog(message):
                 client = sseclient.SSEClient(response)
                 resp_msg = b""
                 for event in client.events():
-                    logger.info("event: {}".format(event))
-                    resp_msg += event['result']['content']
-                return resp_msg.decode("utf8")
+                    logger.info(f"event: {event}")
+                return message
 
         return "服务器开小差了，请稍后再试^_^"
     except Exception as exc:
-        logger.error("create_chat_gpt_dialog_fail: {}".format(exc))
+        logger.error(f"create_chat_gpt_dialog_fail: {exc}")
         return "服务器开小差了，请稍后再试^_^"
 
 
