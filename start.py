@@ -57,7 +57,7 @@ async def create_chat_gpt_dialog(message):
     }
     data = {"messages": [{"type": "text", "text": message}]}
     try:
-        resp = requests.post(url, json=data, headers=headers)
+        resp = requests.post(url, json=data, headers=headers, timeout=3)
         if resp.status_code == 200:
             r_json = resp.json()
             logger.info(f"{r_json}")
