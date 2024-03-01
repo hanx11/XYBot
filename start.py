@@ -75,6 +75,8 @@ async def get_chat_id():
 async def create_chat_gpt_dialog(message):
     try:
         chat_id = await get_chat_id()
+        if isinstance(chat_id, bytes):
+            chat_id = chat_id.decode("utf-8")
         url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/{chat_id}/completion/"
         data = {"messages": [{"type": "text", "text": message}]}
         logger.info(f"{url}")
