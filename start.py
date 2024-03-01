@@ -48,7 +48,7 @@ async def with_requests(url, headers):
 
 
 async def create_chat_gpt_dialog(message):
-    url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
+    url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/922b5ff4d79411eeb8be4f8b59949224/completion/"
     headers = {
         "Token": "pbkdf2_sha256$600000$HBFQO0Rgb4gy8pzD4srHN4$dAnsp/B8TSiRiO74eVb5eVye/DNNZDtBXP/KcpmvLa8=",
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
@@ -78,10 +78,10 @@ async def create_chat_gpt_dialog(message):
                     logger.info(f'{r}')
                 return content
 
-        return "服务器开小差了，请稍后再试^_^"
+        return "机器人去充电啦，请稍后再试^_^"
     except Exception as exc:
         logger.error(f"create_chat_gpt_dialog_fail: {exc}")
-        return "服务器开小差了，请稍后再试^_^"
+        return "机器人去充电啦，请稍后再试^_^"
 
 
 async def main():
