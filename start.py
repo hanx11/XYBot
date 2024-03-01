@@ -8,6 +8,7 @@ import schedule
 import time
 import websockets
 import yaml
+import sseclient
 from loguru import logger
 
 import xybot
@@ -39,6 +40,11 @@ async def gen_chp():
     return requests.get("https://api.shadiao.pro/chp").json()
 
 
+async def with_requests(url, params, headers):
+    """Get a streaming response for the given event feed using requests."""
+    return requests.get(url, params=params, stream=True, headers=headers)
+
+
 async def create_chat_gpt_dialog(message):
     url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
     headers = {
@@ -55,10 +61,12 @@ async def create_chat_gpt_dialog(message):
             if r_json.get("message") == "success":
                 url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
                 params = {"pk": r_json['result']['pk']}
+                response = await with_requests(url, params, headers)
+                client = sseclient.SSEClient(response)
                 resp_msg = b""
-                with requests.get(url, params=params, stream=True, headers=headers, timeout=30) as resp:
-                    for content in resp.iter_content():
-                        resp_msg += content
+                for event in client.events():
+                    logger.info("event: {}".format(event))
+                    resp_msg += event['result']['content']
                 return resp_msg.decode("utf8")
 
         return "服务器开小差了，请稍后再试^_^"
