@@ -65,7 +65,7 @@ async def create_chat_gpt_dialog(message):
                 pk = r_json['result']['pk']
                 url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/?pk={pk}"
                 request = requests.Request(method='GET', url=url, headers=headers).prepare()
-                r = session.send(request, timeout=3).json()
+                r = session.send(request, timeout=2).json()
                 logger.info(f"r_69: {r}")
                 content = ""
                 while True:
@@ -73,7 +73,7 @@ async def create_chat_gpt_dialog(message):
                         break
 
                     content += r['result']['content']
-                    await asyncio.sleep(0.3)
+                    await asyncio.sleep(r['result']['wait'] / 1000)
                     r = session.send(request, timeout=2).json()
                     logger.info(f"r_78: {r}")
                 return content
