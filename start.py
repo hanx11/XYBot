@@ -158,11 +158,12 @@ async def main():
                     r_type = recv['type']
                     if r_type == 1 or r_type == 3 or r_type == 49:
                         logger.info('[收到消息]:{message}'.format(message=recv))
-                        if isinstance(recv['content'], str) and recv['content'].startswith('@Walter'):  # 判断是否为txt消息
-                            resp_msg = await create_chat_gpt_dialog(recv['content'])
-                            r = bot.send_txt_msg(recv['wxid'], resp_msg)
-                            logger.info(f"{r}")
+                        if isinstance(recv['content'], str):    # 判断是否为txt消息
                             # asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
+                            if recv['wxid'] == 'hanfeng_1991' or recv['content'].startswith('@Walter'):
+                                resp_msg = await create_chat_gpt_dialog(recv['content'])
+                                r = bot.send_txt_msg(recv['wxid'], resp_msg)
+                                logger.info(f"{r}")
                 except Exception as error:
                     logger.error('出现错误: {error}'.format(error=error))
 
