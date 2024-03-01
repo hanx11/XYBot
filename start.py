@@ -55,10 +55,10 @@ async def create_chat_gpt_dialog(message):
             if r_json.get("message") == "success":
                 url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
                 params = {"pk": r_json['result']['pk']}
-                resp_msg = ""
+                resp_msg = b""
                 with requests.get(url, params=params, stream=True, headers=headers, timeout=30) as resp:
                     for content in resp.iter_content():
-                        resp_msg += str(content)
+                        resp_msg += content
                 return resp_msg
 
         return "服务器开小差了，请稍后再试^_^"
