@@ -59,7 +59,7 @@ async def create_chat_gpt_dialog(message):
                 with requests.get(url, params=params, stream=True, headers=headers, timeout=30) as resp:
                     for content in resp.iter_content():
                         resp_msg += content
-                return resp_msg
+                return resp_msg.decode("utf8")
 
         return "服务器开小差了，请稍后再试^_^"
     except Exception as exc:
