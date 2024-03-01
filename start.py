@@ -66,14 +66,16 @@ async def create_chat_gpt_dialog(message):
                 url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/?pk={pk}"
                 request = requests.Request(method='GET', url=url, headers=headers).prepare()
                 content = ""
+                r = session.send(request, timeout=2).json()
+                logger.info(f"{r}")
                 while True:
-                    r = session.send(request, timeout=2).json()
-                    logger.info(f"{r}")
                     if r.get("code") != "0" or (r['result']['status'] == 0 and not r['result']['content']):
                         break
 
                     content += r['result']['content']
                     await asyncio.sleep(r['result']['wait'] / 1000)
+                    r = session.send(request, timeout=2).json()
+                    logger.info(f'{r}')
                 return content
 
         return "服务器开小差了，请稍后再试^_^"
