@@ -88,16 +88,14 @@ async def create_chat_gpt_dialog(message):
                 pk = r_json['result']['pk']
                 request = requests.Request(method='GET', url=f"{url}?pk={pk}", headers=headers).prepare()
                 content = ""
-                r = session.send(request, timeout=2).json()
-                logger.info(f"{r}")
                 while True:
+                    r = session.send(request, timeout=3).json()
+                    logger.info(f"{r}")
                     if r.get("code") != "0" or (r['result']['status'] == 0 and not r['result']['content']):
                         break
 
                     content += r['result']['content']
                     await asyncio.sleep(r['result']['wait'] / 1000)
-                    r = session.send(request, timeout=2).json()
-                    logger.info(f'{r}')
                 return content
 
         return "机器人去充电啦，请稍后再试^_^"
