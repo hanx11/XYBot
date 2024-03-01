@@ -8,14 +8,23 @@ import schedule
 import time
 import websockets
 import yaml
-import sseclient
 from loguru import logger
 
 import xybot
+import redis
 from plans_manager import plan_manager
 from plugin_manager import plugin_manager
 
 session = requests.session()
+
+rds = redis.Redis()
+
+headers = {
+    "Token": "pbkdf2_sha256$600000$HBFQO0Rgb4gy8pzD4srHN4$dAnsp/B8TSiRiO74eVb5eVye/DNNZDtBXP/KcpmvLa8=",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Content-Type": "application/json",
+    "Userid": '73',
+}
 
 
 async def message_handler(recv, handlebot):  # 处理收到的消息
@@ -47,24 +56,33 @@ async def with_requests(url, headers):
     return requests.get(url, stream=True, headers=headers)
 
 
+async def get_chat_id():
+    cache_key = "chat_id"
+    chat_id = rds.get(cache_key)
+    if not chat_id:
+        url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/"
+        params = {"model": "gpt-4-1106-preview"}
+        resp = requests.post(url, json=params, headers=headers)
+        if resp.status_code == 200:
+            r = resp.json()
+            chat_id = r['result']['id']
+            rds.set(cache_key, chat_id)
+            rds.expire(cache_key, 3600)
+    return chat_id
+
+
 async def create_chat_gpt_dialog(message):
-    url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/922b5ff4d79411eeb8be4f8b59949224/completion/"
-    headers = {
-        "Token": "pbkdf2_sha256$600000$HBFQO0Rgb4gy8pzD4srHN4$dAnsp/B8TSiRiO74eVb5eVye/DNNZDtBXP/KcpmvLa8=",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "Content-Type": "application/json",
-        "Userid": '73',
-    }
-    data = {"messages": [{"type": "text", "text": message}]}
     try:
-        resp = requests.post(url, json=data, headers=headers, timeout=3)
+        chat_id = await get_chat_id()
+        url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/{chat_id}/completion/"
+        data = {"messages": [{"type": "text", "text": message}]}
+        resp = requests.post(url, json=data, headers=headers, timeout=5)
         if resp.status_code == 200:
             r_json = resp.json()
             logger.info(f"{r_json}")
             if r_json.get("message") == "success":
                 pk = r_json['result']['pk']
-                url = f"{url}?pk={pk}"
-                request = requests.Request(method='GET', url=url, headers=headers).prepare()
+                request = requests.Request(method='GET', url=f"{url}?pk={pk}", headers=headers).prepare()
                 content = ""
                 r = session.send(request, timeout=2).json()
                 logger.info(f"{r}")
