@@ -61,6 +61,7 @@ async def create_chat_gpt_dialog(message):
             logger.info(f"r_json: {r_json}")
             if r_json.get("message") == "success":
                 url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
+                await asyncio.wait(r_json['result']['wait'] / 1000)
                 params = {"pk": r_json['result']['pk']}
                 response = await with_requests(url, params, headers)
                 client = sseclient.SSEClient(response)
