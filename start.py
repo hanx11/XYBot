@@ -63,7 +63,7 @@ async def create_chat_gpt_dialog(message):
 
         return "服务器开小差了，请稍后再试^_^"
     except Exception as exc:
-        logger.error("create_chat_gpt_dialog_fail: %s", exc)
+        logger.error("create_chat_gpt_dialog_fail: {}".format(exc))
         return "服务器开小差了，请稍后再试^_^"
 
 
