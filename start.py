@@ -63,7 +63,7 @@ async def create_chat_gpt_dialog(message):
             logger.info(f"{r_json}")
             if r_json.get("message") == "success":
                 pk = r_json['result']['pk']
-                url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/?pk={pk}"
+                url = f"{url}?pk={pk}"
                 request = requests.Request(method='GET', url=url, headers=headers).prepare()
                 content = ""
                 r = session.send(request, timeout=2).json()
