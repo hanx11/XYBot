@@ -62,7 +62,7 @@ async def get_chat_id():
     if not chat_id:
         url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/"
         params = {"model": "gpt-4-1106-preview"}
-        resp = requests.post(url, json=params, headers=headers)
+        resp = requests.post(url, json=params, headers=headers, timeout=3)
         if resp.status_code == 200:
             r = resp.json()
             logger.info(f"{r}")
