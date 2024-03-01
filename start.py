@@ -34,8 +34,37 @@ async def plan_run_pending():  # 计划等待判定线程
 async def get_random_sentence():
     return requests.get("https://v1.hitokoto.cn/").json()
 
+
 async def gen_chp():
     return requests.get("https://api.shadiao.pro/chp").json()
+
+
+async def create_chat_gpt_dialog(message):
+    url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
+    headers = {
+        "Token": "pbkdf2_sha256$600000$HBFQO0Rgb4gy8pzD4srHN4$dAnsp/B8TSiRiO74eVb5eVye/DNNZDtBXP/KcpmvLa8=",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "Content-Type": "application/json",
+        "Userid": '73',
+    }
+    data = {"messages": [{"type": "text", "text": message}]}
+    try:
+        resp = requests.post(url, json=data, headers=headers)
+        if resp.status_code == 200:
+            r_json = resp.json()
+            if r_json.get("message") == "success":
+                url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
+                params = {"pk": r_json['result']['pk']}
+                resp_msg = ""
+                with requests.get(url, params=params, stream=True, headers=headers, timeout=30) as resp:
+                    for content in resp.iter_content():
+                        resp_msg += content
+                return resp_msg
+
+        return "服务器开小差了，请稍后再试^_^"
+    except Exception as exc:
+        logger.error("create_chat_gpt_dialog_fail: %s", exc)
+        return "服务器开小差了，请稍后再试^_^"
 
 
 async def main():
@@ -93,11 +122,9 @@ async def main():
                     if r_type == 1 or r_type == 3 or r_type == 49:
                         logger.info('[收到消息]:{message}'.format(message=recv))
                         if isinstance(recv['content'], str):  # 判断是否为txt消息
-                            # s = await get_random_sentence()
-                            # bot.send_txt_msg(recv['wxid'], s['hitokoto'])
-                            s = await gen_chp()
-                            bot.send_txt_msg(recv['wxid'], s['data']['text'])
-                            asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
+                            resp_msg = await create_chat_gpt_dialog(recv['content'])
+                            bot.send_txt_msg(recv['wxid'], resp_msg)
+                            # asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
                 except Exception as error:
                     logger.error('出现错误: {error}'.format(error=error))
 
