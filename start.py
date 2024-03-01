@@ -60,13 +60,13 @@ async def create_chat_gpt_dialog(message):
         resp = requests.post(url, json=data, headers=headers)
         if resp.status_code == 200:
             r_json = resp.json()
-            logger.info(f"r_json: {r_json}")
+            logger.info(f"{r_json}")
             if r_json.get("message") == "success":
                 pk = r_json['result']['pk']
                 url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/?pk={pk}"
                 request = requests.Request(method='GET', url=url, headers=headers).prepare()
                 r = session.send(request, timeout=2).json()
-                logger.info(f"r_69: {r}")
+                logger.info(f"{r}")
                 content = ""
                 while True:
                     if r.get("code") != "0" or (r['result']['status'] == 0 and not r['result']['content']):
@@ -75,7 +75,7 @@ async def create_chat_gpt_dialog(message):
                     content += r['result']['content']
                     await asyncio.sleep(r['result']['wait'] / 1000)
                     r = session.send(request, timeout=2).json()
-                    logger.info(f"r_78: {r}")
+                    logger.info(f"{r}")
                 return content
 
         return "服务器开小差了，请稍后再试^_^"
@@ -140,7 +140,8 @@ async def main():
                         logger.info('[收到消息]:{message}'.format(message=recv))
                         if isinstance(recv['content'], str):  # 判断是否为txt消息
                             resp_msg = await create_chat_gpt_dialog(recv['content'])
-                            bot.send_txt_msg(recv['wxid'], resp_msg)
+                            r = bot.send_txt_msg(recv['wxid'], resp_msg)
+                            logger.info(f"{r}")
                             # asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
                 except Exception as error:
                     logger.error('出现错误: {error}'.format(error=error))
