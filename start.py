@@ -58,7 +58,7 @@ async def create_chat_gpt_dialog(message):
                 resp_msg = ""
                 with requests.get(url, params=params, stream=True, headers=headers, timeout=30) as resp:
                     for content in resp.iter_content():
-                        resp_msg += content
+                        resp_msg += str(content)
                 return resp_msg
 
         return "服务器开小差了，请稍后再试^_^"
