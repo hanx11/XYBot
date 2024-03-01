@@ -40,9 +40,9 @@ async def gen_chp():
     return requests.get("https://api.shadiao.pro/chp").json()
 
 
-async def with_requests(url, params, headers):
+async def with_requests(url, headers):
     """Get a streaming response for the given event feed using requests."""
-    return requests.get(url, params=params, stream=True, headers=headers)
+    return requests.get(url, stream=True, headers=headers)
 
 
 async def create_chat_gpt_dialog(message):
@@ -60,10 +60,10 @@ async def create_chat_gpt_dialog(message):
             r_json = resp.json()
             logger.info(f"r_json: {r_json}")
             if r_json.get("message") == "success":
-                url = "https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/"
+                pk = r_json['result']['pk']
+                url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/5445436cd51e11eeb8be4f8b59949224/completion/?pk={pk}"
                 await asyncio.sleep(0.5)
-                params = {"pk": r_json['result']['pk']}
-                response = await with_requests(url, params, headers)
+                response = await with_requests(url, headers)
                 client = sseclient.SSEClient(response)
                 resp_msg = b""
                 for event in client.events():
