@@ -68,11 +68,14 @@ async def create_chat_gpt_dialog(message):
                 r = session.send(request, timeout=3).json()
                 logger.info(f"r_69: {r}")
                 content = ""
-                while r.get("message") == "success" and r['result']['status'] != 0:
+                while True:
+                    if r.get("code") != "0" or (r['result']['status'] == 0 and not r['result']['content']):
+                        break
+
                     content += r['result']['content']
                     await asyncio.sleep(0.3)
                     r = session.send(request, timeout=2).json()
-                    logger.info(f"r_75: {r}")
+                    logger.info(f"r_78: {r}")
                 return content
 
         return "服务器开小差了，请稍后再试^_^"
