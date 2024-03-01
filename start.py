@@ -65,6 +65,7 @@ async def get_chat_id():
         resp = requests.post(url, json=params, headers=headers)
         if resp.status_code == 200:
             r = resp.json()
+            logger.info(f"{r}")
             chat_id = r['result']['id']
             rds.set(cache_key, chat_id)
             rds.expire(cache_key, 3600)
@@ -76,6 +77,7 @@ async def create_chat_gpt_dialog(message):
         chat_id = await get_chat_id()
         url = f"https://sg-api-ai.jiyinglobal.com/v1/m/gpt/chat/{chat_id}/completion/"
         data = {"messages": [{"type": "text", "text": message}]}
+        logger.info(f"{url}")
         resp = requests.post(url, json=data, headers=headers, timeout=5)
         if resp.status_code == 200:
             r_json = resp.json()
