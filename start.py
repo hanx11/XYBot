@@ -26,6 +26,13 @@ headers = {
     "Userid": '73',
 }
 
+WHITE_WX_IDS = [
+    "hanfeng_1991",
+    "wxid_jsuq7eo9gfu921",    # Sean
+    "ppwspp",        # 彭伟
+    "a27004317",     # 袁玲丽
+]
+
 
 async def message_handler(recv, handlebot):  # 处理收到的消息
     await asyncio.create_task(handlebot.message_handler(recv))
@@ -160,7 +167,7 @@ async def main():
                         logger.info('[收到消息]:{message}'.format(message=recv))
                         if isinstance(recv['content'], str):    # 判断是否为txt消息
                             # asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
-                            if recv['wxid'] == 'hanfeng_1991' or recv['content'].startswith('@Walter'):
+                            if recv['wxid'] in WHITE_WX_IDS or recv['content'].startswith('@Walter'):
                                 resp_msg = await create_chat_gpt_dialog(recv['content'])
                                 r = bot.send_txt_msg(recv['wxid'], resp_msg)
                                 logger.info(f"{r}")
