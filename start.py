@@ -123,8 +123,9 @@ async def chat_with_qwen(message):
     try:
         response = requests.post(url=url, json=data, stream=True)
         for msg in response.iter_lines():
+            msg_type = type(msg)
+            logger.info(f"{msg}, {msg_type}")
             msg = json.loads(msg)
-            logger.info(f"{msg}")
             resp_content += msg["message"]["content"]
     except Exception as exc:
         print(exc)
