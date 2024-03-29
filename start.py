@@ -111,6 +111,28 @@ async def create_chat_gpt_dialog(message):
         return "机器人去充电啦，请稍后再试^_^"
 
 
+async def chat_with_qwen(message):
+    url = "http://172.17.0.3:11434/api/chat"
+    data = {
+        "model": "qwen:7b",
+        "messages": [
+            {"role": "user", "content": message}
+        ]
+    }
+    resp_content = b""
+    try:
+        response = requests.post(url=url, json=data, stream=True)
+        for msg in response.iter_lines():
+            msg = json.loads(msg)
+            logger.info(f"{msg}")
+            resp_content += msg["message"]["content"]
+    except Exception as exc:
+        print(exc)
+        resp_content += "机器人去充电啦，请稍后再试^_^"
+    finally:
+        return resp_content
+
+
 async def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -168,7 +190,8 @@ async def main():
                         if isinstance(recv['content'], str):    # 判断是否为txt消息
                             # asyncio.create_task(message_handler(recv, handlebot)).add_done_callback(callback)
                             if recv['wxid'] in WHITE_WX_IDS or recv['content'].startswith('@Walter'):
-                                resp_msg = await create_chat_gpt_dialog(recv['content'])
+                                # resp_msg = await create_chat_gpt_dialog(recv['content'])
+                                resp_msg = await chat_with_qwen(recv['content'])
                                 r = bot.send_txt_msg(recv['wxid'], resp_msg)
                                 logger.info(f"{r}")
                 except Exception as error:
