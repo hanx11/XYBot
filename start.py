@@ -119,7 +119,7 @@ async def chat_with_qwen(message):
             {"role": "user", "content": message}
         ]
     }
-    resp_content = b""
+    resp_content = ""
     try:
         response = requests.post(url=url, json=data, stream=True)
         for msg in response.iter_lines():
